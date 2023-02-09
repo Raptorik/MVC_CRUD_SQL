@@ -5,7 +5,7 @@ services:
     image: mysql
     restart: always
     environment:
-      MYSQL_DATABASE: 'my-app'
+      MYSQL_DATABASE: 'my-mvc'
       MYSQL_USER: 'user'
       MYSQL_PASSWORD: 'password'
       MYSQL_ROOT_PASSWORD: 'password'

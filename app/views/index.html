@@ -1,0 +1,29 @@
+<html>
+    <head>
+         <title>Product List</title>
+        <a href="/product/add">Add</a>
+    </head>
+    <body>
+
+    <h3>Product List</h3>
+    <table border="1">
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Action</th>
+        </tr>
+        {{range .products}}
+        <tr>
+            <td>{{.Id}}</td>
+            <td>{{.Name}}</td>
+            <td>{{.Price}}</td>
+            <td>{{.Quantity}}</td>
+            <td>{{.Description}}</td>
+            <td>Edit | Delete</td>
+        </tr>
+{{end}}
+    </table>
+    </body>
+<html>
