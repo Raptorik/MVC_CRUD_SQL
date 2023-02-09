@@ -1,0 +1,43 @@
+<html>
+    <head>
+         <title>Edit Product</title>
+    </head>
+    <body>
+
+    <h3>Edit Product</h3>
+    <form method="POST" action="/product/update">
+        <table >
+            <tr>
+                <td>Id</td>
+                <td>{{.product.Id}}</td>
+            </tr>
+            <tr>
+                <td>Name</td>
+                <td><input type="text" name="name" value="{{.product.Name}}"></td>
+            </tr>
+            <tr>
+                <td>Price</td>
+                <td><input type="text" name="price" value="{{.product.Price}}"></td>
+            </tr>
+            <tr>
+                <td>Quantity</td>
+                <td><input type="number" name="quantity" min="0" value="{{.product.Quantity}}"></td>
+            </tr>
+            <tr>
+                <td valign="top">Description</td>
+                <td>
+                    <textarea name="description" cols="20" rows="5">{{.product.Description}}
+                    </textarea>
+                </td>
+            </tr>
+            <tr>
+                <td>&nbsp</td>
+                <td>
+                    <input type="submit" value="Save">
+                <input type="hidden" name="id" value="{{.product.Id}}">
+
+            </tr>
+        </table>
+    </form>
+    </body>
+<html>

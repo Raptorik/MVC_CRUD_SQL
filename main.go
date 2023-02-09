@@ -1,15 +1,19 @@
 package main
 
 import (
-	"mvc/app/controllers/productcontroller"
+	"mvc/app/controllers"
 	"net/http"
 )
 
 func main() {
-	http.HandleFunc("/", productcontroller.Index)
-	http.HandleFunc("/product", productcontroller.Index)
-	http.HandleFunc("/product/index", productcontroller.Index)
-	http.HandleFunc("/product/add", productcontroller.Add)
-	http.HandleFunc("/product/processadd", productcontroller.ProcessAdd)
-	http.ListenAndServe(":8080", nil)
+	http.HandleFunc("/", controllers.Index)
+	http.HandleFunc("/product", controllers.Index)
+	http.HandleFunc("/product/index", controllers.Index)
+	http.HandleFunc("/product/add", controllers.Add)
+	http.HandleFunc("/product/processadd", controllers.ProcessAdd)
+	http.HandleFunc("/product/delete", controllers.Delete)
+	http.HandleFunc("/product/edit", controllers.Edit)
+	http.HandleFunc("/product/update", controllers.Update)
+
+	http.ListenAndServe(":3000", nil)
 }

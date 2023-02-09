@@ -15,13 +15,16 @@
             <th>Action</th>
         </tr>
         {{range .products}}
-        <tr>
+        <td>
             <td>{{.Id}}</td>
             <td>{{.Name}}</td>
             <td>{{.Price}}</td>
             <td>{{.Quantity}}</td>
             <td>{{.Description}}</td>
-            <td>Edit | Delete</td>
+        <td>
+            <a href="/products/edit?id={{.Id}}">Edit</a>   |
+            <a href="/products/delete?id={{.Id}}" onclick="return confirm('Are you sure?')">Delete</a>
+        </td>
         </tr>
 {{end}}
     </table>
