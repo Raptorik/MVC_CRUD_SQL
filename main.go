@@ -1,11 +1,13 @@
 package main
 
 import (
+	"log"
 	"mvc/app/controllers"
 	"net/http"
 )
 
 func main() {
+	log.Println("server started on: http://localhost:3000")
 	http.HandleFunc("/", controllers.Index)
 	http.HandleFunc("/product", controllers.Index)
 	http.HandleFunc("/product/index", controllers.Index)
