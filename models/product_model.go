@@ -5,7 +5,7 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
-	"mvc/app/entities"
+	"mvc/entities"
 )
 
 type ProductModel struct {

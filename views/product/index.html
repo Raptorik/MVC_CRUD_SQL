@@ -32,8 +32,8 @@
         <td>{{.Quantity}}</td>
         <td>{{.Description}}</td>
         <td>
-            <a href="/products/edit?id={{.Id}}">Edit</a>   |
-            <a href="/products/delete?id={{.Id}}" onclick="return confirm('Are you sure?')">Delete</a>
+            <a href="/product/edit?id={{.Id}}">Edit</a>    |
+            <a href="/product/delete?id={{.Id}}" onclick="return confirm('Are you sure?')">Delete</a>
         </td>
     </tr>
     {{end}}

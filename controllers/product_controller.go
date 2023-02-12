@@ -1,9 +1,10 @@
 package controllers
 
 import (
+	"fmt"
 	"html/template"
-	"mvc/app/entities"
-	"mvc/app/models"
+	"mvc/entities"
+	"mvc/models"
 	"net/http"
 	"strconv"
 )
@@ -25,7 +26,7 @@ func Index(response http.ResponseWriter, _ *http.Request) {
 		return
 	}
 }
-func Add(response http.ResponseWriter, _ *http.Request) {
+func Add(response http.ResponseWriter, request *http.Request) {
 	tmp, err := template.ParseFiles("views/product/add.html")
 	if err != nil {
 		http.Error(response, err.Error(), http.StatusInternalServerError)
@@ -46,7 +47,7 @@ func ProcessAdd(response http.ResponseWriter, request *http.Request) {
 	}
 	var product entities.Product
 	product.Name = request.Form.Get("name")
-	price, err := strconv.ParseFloat(request.Form.Get("price"), 64)
+	price, err := strconv.ParseFloat(request.Form.Get("price"), 500)
 	if err != nil {
 		http.Error(response, "Invalid price value", http.StatusBadRequest)
 		return
@@ -66,6 +67,7 @@ func ProcessAdd(response http.ResponseWriter, request *http.Request) {
 func Delete(response http.ResponseWriter, request *http.Request) {
 	query := request.URL.Query()
 	id, _ := strconv.ParseInt(query.Get("id"), 10, 64)
+	fmt.Println("id: ", id)
 	var productModel models.ProductModel
 	productModel.Delete(id)
 	http.Redirect(response, request, "/product", http.StatusSeeOther)
@@ -75,14 +77,12 @@ func Edit(response http.ResponseWriter, request *http.Request) {
 	query := request.URL.Query()
 	id, err := strconv.ParseInt(query.Get("id"), 10, 64)
 	if err != nil {
-		// handle the error, for example by writing an error response to the client
 		http.Error(response, "Invalid id parameter", http.StatusBadRequest)
 		return
 	}
 	var productModel models.ProductModel
 	product, err := productModel.Find(id)
 	if err != nil {
-		// handle the error, for example by writing an error response to the client
 		http.Error(response, "Error finding product", http.StatusInternalServerError)
 		return
 	}
@@ -91,13 +91,11 @@ func Edit(response http.ResponseWriter, request *http.Request) {
 	}
 	tmp, err := template.ParseFiles("views/product/edit.html")
 	if err != nil {
-		// handle the error, for example by writing an error response to the client
 		http.Error(response, "Error parsing template", http.StatusInternalServerError)
 		return
 	}
 	err = tmp.Execute(response, data)
 	if err != nil {
-		// handle the error, for example by writing an error response to the client
 		http.Error(response, "Error executing template", http.StatusInternalServerError)
 		return
 	}
@@ -112,7 +110,6 @@ func Update(response http.ResponseWriter, request *http.Request) {
 	var product entities.Product
 	id, err := strconv.ParseInt(request.Form.Get("id"), 10, 64)
 	if err != nil {
-		// handle the error, for example by writing an error response to the client
 		http.Error(response, "Invalid id parameter", http.StatusBadRequest)
 		return
 	}
@@ -120,7 +117,6 @@ func Update(response http.ResponseWriter, request *http.Request) {
 	product.Name = request.Form.Get("name")
 	price, err := strconv.ParseFloat(request.Form.Get("price"), 64)
 	if err != nil {
-		// handle the error, for example by writing an error response to the client
 		http.Error(response, "Invalid price parameter", http.StatusBadRequest)
 		return
 	}

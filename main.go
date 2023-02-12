@@ -2,7 +2,7 @@ package main
 
 import (
 	"log"
-	"mvc/app/controllers"
+	"mvc/controllers"
 	"net/http"
 )
 
