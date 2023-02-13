@@ -1,16 +1,6 @@
-<html>
+<html lang="">
 <head>
     <title>Product List</title>
-    <style>
-        table {
-            width: 100%;
-        }
-        th, td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-    </style>
 </head>
 <body>
 <h3>Product List</h3>
@@ -32,8 +22,8 @@
         <td>{{.Quantity}}</td>
         <td>{{.Description}}</td>
         <td>
-            <a href="/product/edit?id={{.Id}}">Edit</a>    |
-            <a href="/product/delete?id={{.Id}}" onclick="return confirm('Are you sure?')">Delete</a>
+            <a href="/product/edit?id={{ .Id}}">Edit</a>    |
+            <a href="/product/delete?id={{ .Id}}" onclick="return confirm('Are you sure?')">Delete</a>
         </td>
     </tr>
     {{end}}

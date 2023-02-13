@@ -4,34 +4,15 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"log"
+	"mvc/config"
 	"mvc/entities"
 )
 
 type ProductModel struct {
 }
 
-func GetDB() (db *sql.DB, err error) {
-	dbDriver := "mysql"
-	dbName := "my-mvc"
-	dbUser := "user"
-	dbPass := "password"
-	db, err = sql.Open(dbDriver, dbUser+":"+dbPass+"@/"+dbName)
-	if err != nil {
-		panic(err.Error())
-	}
-
-	pingErr := db.Ping()
-	if pingErr != nil {
-		log.Fatal(pingErr)
-	}
-	fmt.Println("Connected!")
-
-	return
-}
-
 func (*ProductModel) FindAll() ([]entities.Product, error) {
-	db, err := GetDB()
+	db, err := config.GetDB()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get database connection: %w", err)
 	}
@@ -69,7 +50,7 @@ func (*ProductModel) FindAll() ([]entities.Product, error) {
 }
 
 func (*ProductModel) Find(id int64) (entities.Product, error) {
-	db, err := GetDB()
+	db, err := config.GetDB()
 	if err != nil {
 		return entities.Product{}, fmt.Errorf("failed to get database connection: %w", err)
 	}
@@ -89,59 +70,47 @@ func (*ProductModel) Find(id int64) (entities.Product, error) {
 	return product, nil
 }
 
-func (*ProductModel) Create(product *entities.Product) (int64, error) {
-	db, err := GetDB()
+func (*ProductModel) Create(product *entities.Product) bool {
+	db, err := config.GetDB()
 	if err != nil {
-		return 0, fmt.Errorf("failed to get database connection: %w", err)
+		return false
+	} else {
+		result, err2 := db.Exec("INSERT INTO `my-mvc`.product_list (name, price, quantity, description) values(?,?,?,?)",
+			product.Name, product.Price, product.Quantity, product.Description)
+		if err2 != nil {
+			return false
+		} else {
+			rowsAffected, _ := result.RowsAffected()
+			return rowsAffected > 0
+		}
 	}
-	if err2 := db.Close(); err2 != nil {
-		err = fmt.Errorf("failed to get database connection")
-	}
-
-	result, err := db.Exec("INSERT INTO `my-mvc`.product_list (name, price, quantity, description) values(?,?,?,?)",
-		product.Name, product.Price, product.Quantity, product.Description)
-	if err != nil {
-		return 0, fmt.Errorf("failed to insert product into database: %w", err)
-	}
-	id, err := result.LastInsertId()
-	if err != nil {
-		return 0, fmt.Errorf("failed to insert product into database: %w", err)
-	}
-	return id, nil
 }
-
-func (*ProductModel) Update(product entities.Product) sql.Result {
-	db, err := GetDB()
+func (*ProductModel) Update(product entities.Product) bool {
+	db, err := config.GetDB()
 	if err != nil {
-		return nil
+		return false
+	} else {
+		result, err2 := db.Exec("UPDATE `my-mvc`.product_list SET name = ?, price = ?, quantity = ?, description = ? WHERE id = ?",
+			product.Name, product.Price, product.Quantity, product.Description, product.Id)
+		if err2 != nil {
+			return false
+		} else {
+			rowsAffected, _ := result.RowsAffected()
+			return rowsAffected > 0
+		}
 	}
-	if err2 := db.Close(); err2 != nil {
-		err = fmt.Errorf("failed to get database connection")
-	}
-
-	result, _ := db.Exec("UPDATE `my-mvc`.product_list SET name = ?, price = ?, quantity = ?, description = ? WHERE id = ?",
-		product.Name, product.Price, product.Quantity, product.Description, product.Id)
-	return result
 }
-func (m *ProductModel) Delete(id int64) (deleted bool, err error) {
-	db, err := GetDB()
+func (m *ProductModel) Delete(id int64) bool {
+	db, err := config.GetDB()
 	if err != nil {
-		return false, err
+		return false
+	} else {
+		result, err2 := db.Exec("DELETE from `my-mvc`.product_list WHERE id = ?", id)
+		if err2 != nil {
+			return false
+		} else {
+			rowsAffected, _ := result.RowsAffected()
+			return rowsAffected > 0
+		}
 	}
-
-	result, err := db.Exec("DELETE from `my-mvc`.product_list WHERE id = ?", id)
-	if err != nil {
-		return false, err
-	}
-
-	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return false, err
-	}
-
-	if rowsAffected == 0 {
-		return false, nil
-	}
-
-	return true, nil
 }
