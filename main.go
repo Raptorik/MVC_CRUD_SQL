@@ -1,24 +1,21 @@
 package main
 
 import (
+	"github.com/gorilla/mux"
 	"log"
 	"mvc/controllers"
 	"net/http"
 )
 
 func main() {
-	log.Println("server started on: http://localhost:3000")
-	http.HandleFunc("/", controllers.Index)
-	http.HandleFunc("/product", controllers.Index)
-	http.HandleFunc("/product/index", controllers.Index)
-	http.HandleFunc("/product/add", controllers.Add)
-	http.HandleFunc("/product/processadd", controllers.ProcessAdd)
-	http.HandleFunc("/product/delete", controllers.Delete)
-	http.HandleFunc("/product/edit", controllers.Edit)
-	http.HandleFunc("/product/update", controllers.Update)
+	productController := controller.NewProductController()
+	router := mux.NewRouter()
 
-	err := http.ListenAndServe(":3000", nil)
-	if err != nil {
-		return
-	}
+	router.HandleFunc("/products", productController.GetAll).Methods("GET")
+	router.HandleFunc("/products/{id}", productController.GetByID).Methods("GET")
+	router.HandleFunc("/products", productController.Create).Methods("POST")
+	router.HandleFunc("/products/{id}", productController.Update).Methods("PUT")
+	router.HandleFunc("/products/{id}", productController.Delete).Methods("DELETE")
+
+	log.Fatal(http.ListenAndServe(":8000", router))
 }
