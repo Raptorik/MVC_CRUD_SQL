@@ -1,139 +1,89 @@
-package controller
+package controllers
 
 import (
-	"database/sql"
-	"encoding/json"
-	"github.com/go-redis/redis"
+	"fmt"
+	"html/template"
+	"mvc/entities"
 	"mvc/models"
 	"net/http"
 	"strconv"
-
-	"github.com/gorilla/mux"
 )
 
-type ProductController struct {
-	model *models.ProductModel
+func Index(response http.ResponseWriter, _ *http.Request) {
+	var productModel models.ProductModel
+	products, err := productModel.FindAll()
+	if err != nil {
+		return
+	}
+	data := map[string]interface{}{
+		"products": products,
+	}
+	tmp, err := template.ParseFiles("index.html")
+	if err != nil {
+		return
+	}
+	if err := tmp.Execute(response, data); err != nil {
+		return
+	}
+}
+func Add(response http.ResponseWriter, _ *http.Request) {
+	tmp, _ := template.ParseFiles("add.html")
+	err := tmp.Execute(response, nil)
+	if err != nil {
+		return
+	}
 }
 
-func NewProductController() *ProductController {
-	db, err := sql.Open("mysql", "user:password@tcp(127.0.0.1:3306)/my-mvc")
+func ProcessAdd(response http.ResponseWriter, request *http.Request) {
+	err := request.ParseForm()
 	if err != nil {
-		panic(err)
+		return
 	}
-	cache := redis.NewClient(&redis.Options{
-		Addr: "localhost:6379",
-	})
-
-	return &ProductController{models.NewProductModel(db, cache)}
+	var product entities.Product
+	product.Name = request.Form.Get("name")
+	product.Price, _ = strconv.ParseFloat(request.Form.Get("price"), 64)
+	product.Quantity, _ = strconv.ParseInt(request.Form.Get("quantity"), 10, 64)
+	product.Description = request.Form.Get("description")
+	var productModel models.ProductModel
+	productModel.Create(&product)
+	http.Redirect(response, request, "/product", http.StatusSeeOther)
+}
+func Delete(response http.ResponseWriter, request *http.Request) {
+	query := request.URL.Query()
+	id, _ := strconv.ParseInt(query.Get("id"), 10, 64)
+	fmt.Println("id", id)
+	var productModel models.ProductModel
+	productModel.Delete(id)
+	http.Redirect(response, request, "/product", http.StatusSeeOther)
 }
 
-func (c *ProductController) GetAll(w http.ResponseWriter, _ *http.Request) {
-	products, err := c.model.GetAll()
+func Edit(response http.ResponseWriter, request *http.Request) {
+	query := request.URL.Query()
+	id, _ := strconv.ParseInt(query.Get("id"), 10, 64)
+	var productModel models.ProductModel
+	product, _ := productModel.Find(id)
+	data := map[string]interface{}{
+		"product": product,
+	}
+	tmp, _ := template.ParseFiles("edit.html")
+	err := tmp.Execute(response, data)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	jsonResult, err := json.Marshal(products)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(jsonResult)
 }
 
-func (c *ProductController) GetByID(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
+func Update(response http.ResponseWriter, request *http.Request) {
+	err := request.ParseForm()
 	if err != nil {
-		http.Error(w, "Invalid product ID", http.StatusBadRequest)
 		return
 	}
-
-	product, err := c.model.GetByID(int64(id))
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	jsonResult, err := json.Marshal(product)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(jsonResult)
-}
-
-func (c *ProductController) Create(w http.ResponseWriter, r *http.Request) {
-	var product models.Product
-	err := json.NewDecoder(r.Body).Decode(&product)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	err = c.model.Create(&product)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	jsonResult, err := json.Marshal(product)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	w.Write(jsonResult)
-}
-
-func (c *ProductController) Update(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
-	if err != nil {
-		http.Error(w, "Invalid product ID", http.StatusBadRequest)
-		return
-	}
-
-	var product models.Product
-	err = json.NewDecoder(r.Body).Decode(&product)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	product.ID = int64(id)
-	err = c.model.Update(&product)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	jsonResult, err := json.Marshal(product)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	w.Write(jsonResult)
-}
-
-func (c *ProductController) Delete(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
-	if err != nil {
-		http.Error(w, "Invalid product ID", http.StatusBadRequest)
-		return
-	}
-
-	err = c.model.Delete(id)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
+	var product entities.Product
+	product.Id, _ = strconv.ParseInt(request.Form.Get("id"), 10, 64)
+	product.Name = request.Form.Get("name")
+	product.Price, _ = strconv.ParseFloat(request.Form.Get("price"), 64)
+	product.Quantity, _ = strconv.ParseInt(request.Form.Get("quantity"), 10, 64)
+	product.Description = request.Form.Get("description")
+	var productModel models.ProductModel
+	productModel.Update(product)
+	http.Redirect(response, request, "/product", http.StatusSeeOther)
 }

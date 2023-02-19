@@ -1,0 +1,40 @@
+<html lang="">
+<head>
+    <title>Add Product</title>
+</head>
+<body>
+<h3>Add Product</h3>
+<form method="POST" action="/product/processadd">
+    <table>
+        <tr>
+            <td>Name</td>
+            <td><label>
+                <input type="text" name="name">
+            </label></td>
+        </tr>
+        <tr>
+            <td>Price</td>
+            <td><label>
+                <input type="text" name="price">
+            </label></td>
+        </tr>
+        <tr>
+            <td>Quantity</td>
+            <td><label>
+                <input type="number" name="quantity" min="0">
+            </label></td>
+        </tr>
+        <tr>
+            <td valign="top">Description</td>
+            <td><label>
+                <textarea name="description" cols="20" rows="5"></textarea>
+            </label></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><input type="submit" value="Save"></td>
+        </tr>
+    </table>
+</form>
+</body>
+</html>
